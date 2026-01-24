@@ -71,6 +71,27 @@
       .game-button:hover {
       background: #4a4a4a;
       }
+      /* PAGE SWITCH BUTTON*/
+      .btn {
+      display: inline-block;
+      text-decoration: none;
+      background: linear-gradient(135deg, #5f27cd, #341f97);
+      color: white;
+      padding: 5px 8px;
+      font-size: 16px;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      }
+
+      .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+      }
+
+      .btn:active {
+      transform: translateY(0);
+      }
       /* STAR */
       .star {
       font-size: 22px;
@@ -207,6 +228,7 @@
       (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
     <div class="container">
+      <a href="page1.html" class="btn">Contact Us</a>
       <h1>Games</h1>
       <div class="controls">
         <button id="popupToggle" class="toggle-off">Popup Mode: HOVER</button>
