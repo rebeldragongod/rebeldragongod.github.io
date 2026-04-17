@@ -1,144 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Request for new games or games needing fixed</title>
+  <title>Daily Quote</title>
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NS4WN208Q8"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-NS4WN208Q8');
-    </script>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #1e1e1e;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
 
-    <style>
-      body {
-        overflow-x: hidden;
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #1e1e1e;
-        color: white;
-      }
+    #quote {
+      font-size: 28px;
+      max-width: 700px;
+      padding: 20px;
+      line-height: 1.5;
+    }
 
-      .container {
-        max-width: 720px;
-        margin: auto;
-        padding: 20px;
-        text-align: center;
-      }
-
-      h1 {
-        text-align: center;
-      }
-
-      h2 {
-        font-size: 22px;
-        margin: 15px 0;
-        font-weight: normal;
-      }
-
-      .btn {
-        display: inline-block;
-        text-decoration: none;
-        background: #787878;
-        color: white;
-        padding: 5px 8px;
-        font-size: 16px;
-        border-radius: 10px;
-        transition: all 0.2s ease;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-        margin: 5px;
-      }
-
-      .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 30px rgba(0,0,0,0.4);
-      }
-
-      .btn:active {
-        transform: translateY(0);
-      }
-    </style>
+    .author {
+      margin-top: 15px;
+      font-size: 18px;
+      opacity: 0.7;
+    }
+  </style>
 </head>
 
 <body>
 
-  <div class="container">
-    <a href="index.html" class="btn">Home</a>
-    <a href="page1.html" class="btn">Contact Us</a>
-
-    <h1>Daily Quotes</h1>
-
-    <h2 id="quote1">Loading...</h2>
-    <h2 id="quote2">Loading...</h2>
-    <h2 id="quote3">Loading...</h2>
+  <div>
+    <div id="quote">Loading quote...</div>
+    <div id="author"></div>
   </div>
 
   <script>
-    async function getThreeQuotes() {
-      const today = new Date().toDateString();
+    async function loadQuote() {
+      const quoteEl = document.getElementById("quote");
+      const authorEl = document.getElementById("author");
 
-      const fallbackQuotes = [
-        `"Be yourself; everyone else is already taken."<br>— Oscar Wilde`,
-        `"Do what you can, with what you have."<br>— Theodore Roosevelt`,
-        `"Success is not final, failure is not fatal."<br>— Winston Churchill`,
-        `"You miss 100% of the shots you don’t take."<br>— Wayne Gretzky`,
-        `"Stay hungry, stay foolish."<br>— Steve Jobs`
+      const fallback = [
+        { q: "Be yourself; everyone else is already taken.", a: "Oscar Wilde" },
+        { q: "Do what you can, with what you have.", a: "Theodore Roosevelt" },
+        { q: "Success is not final, failure is not fatal.", a: "Winston Churchill" }
       ];
 
-      const saved = localStorage.getItem("dailyQuotes");
-
-      let quotes = null;
-
-      // Use saved quotes if same day
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.date === today) {
-          quotes = parsed.quotes;
-        }
-      }
-
       try {
-        // Try API (3 quotes)
-        const res = await fetch("https://api.quotable.io/quotes/random");
+        const res = await fetch("https://api.quotable.io/random?tags=inspirational|life");
         const data = await res.json();
 
-        if (Array.isArray(data) && data.length >= 3) {
-          quotes = [
-            `"${data[0].q}"<br>— ${data[0].a}`,
-            `"${data[1].q}"<br>— ${data[1].a}`,
-            `"${data[2].q}"<br>— ${data[2].a}`
-          ];
-        }
+        quoteEl.innerText = `"${data.content}"`;
+        authorEl.innerText = `— ${data.author}`;
 
       } catch (err) {
-        console.log("API failed, using fallback...");
+        console.log("API failed, using fallback");
+
+        const pick = fallback[Math.floor(Math.random() * fallback.length)];
+        quoteEl.innerText = `"${pick.q}"`;
+        authorEl.innerText = `— ${pick.a}`;
       }
-
-      // If API failed or not usable → fallback
-      if (!quotes) {
-        const shuffled = [...fallbackQuotes].sort(() => 0.5 - Math.random());
-        quotes = shuffled.slice(0, 3);
-      }
-
-      // Save for the day
-      localStorage.setItem("dailyQuotes", JSON.stringify({
-        date: today,
-        quotes: quotes
-      }));
-
-      // Display
-      document.getElementById("quote1").innerHTML = quotes[0];
-      document.getElementById("quote2").innerHTML = quotes[1];
-      document.getElementById("quote3").innerHTML = quotes[2];
     }
 
-    getThreeQuotes();
+    loadQuote();
   </script>
-
-  <!-- Your background script -->
-  <script src="mesh.js"></script>
 
 </body>
 </html>
