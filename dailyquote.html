@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Daily Quote</title>
+    <title>AI Daily Quote</title>
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-NS4WN208Q8"></script>
     <script>
@@ -13,7 +13,6 @@
 
     <style>
       body {
-        overflow-x: hidden;
         margin: 0;
         font-family: Arial, sans-serif;
         background: #1e1e1e;
@@ -25,12 +24,6 @@
         margin: auto;
         padding: 20px;
         text-align: center;
-        position: relative;
-        z-index: 2;
-      }
-
-      h1 {
-        text-align: center;
       }
 
       .btn {
@@ -38,29 +31,21 @@
         text-decoration: none;
         background: #787878;
         color: white;
-        padding: 5px 8px;
-        font-size: 16px;
+        padding: 6px 10px;
         border-radius: 10px;
-        transition: 0.2s;
         margin: 5px;
       }
 
-      .btn:hover {
-        transform: translateY(-2px);
-      }
-
-      /* CENTER QUOTE */
       .quote-wrapper {
         height: 65vh;
         display: flex;
-        justify-content: center;
         align-items: center;
+        justify-content: center;
         text-align: center;
-        padding: 20px;
       }
 
       #quote {
-        font-size: 30px;
+        font-size: 28px;
         max-width: 700px;
         line-height: 1.4;
       }
@@ -68,6 +53,11 @@
       #author {
         margin-top: 15px;
         opacity: 0.7;
+      }
+
+      #loading {
+        opacity: 0.6;
+        margin-top: 10px;
       }
     </style>
 </head>
@@ -78,92 +68,62 @@
     <a href="index.html" class="btn">Home</a>
     <a href="page1.html" class="btn">Contact Us</a>
 
-    <h1>Daily Quote</h1>
+    <h1>AI Quote Generator</h1>
   </div>
 
   <div class="quote-wrapper">
     <div>
-      <div id="quote">Loading...</div>
+      <div id="quote">Loading AI quote...</div>
       <div id="author"></div>
+      <div id="loading"></div>
     </div>
   </div>
 
   <script>
-    // 🎯 500+ QUOTE SYSTEM (REAL STRUCTURE, NOT FAKE SHORTCUTS)
-    const quotes = [
-      { q: "Be yourself; everyone else is already taken.", a: "Oscar Wilde" },
-      { q: "Do what you can, with what you have.", a: "Theodore Roosevelt" },
-      { q: "Success is not final, failure is not fatal.", a: "Winston Churchill" },
-      { q: "You miss 100% of the shots you don’t take.", a: "Wayne Gretzky" },
-      { q: "Stay hungry, stay foolish.", a: "Steve Jobs" },
-      { q: "In the middle of difficulty lies opportunity.", a: "Albert Einstein" },
-      { q: "Life is what happens when you're busy making other plans.", a: "John Lennon" },
-      { q: "The best way to predict the future is to create it.", a: "Peter Drucker" },
-      { q: "It always seems impossible until it's done.", a: "Nelson Mandela" },
-      { q: "Don’t stop when you’re tired. Stop when you’re done.", a: "Unknown" },
-      { q: "Dream big and dare to fail.", a: "Norman Vaughan" },
-      { q: "Push yourself, because no one else will.", a: "Unknown" },
-      { q: "Hard work beats talent when talent doesn’t work hard.", a: "Tim Notke" },
-      { q: "Small steps every day lead to big results.", a: "Unknown" },
-      { q: "Your only limit is you.", a: "Unknown" },
-      { q: "Work hard in silence, let success make noise.", a: "Frank Ocean" },
-      { q: "The harder you work, the luckier you get.", a: "Gary Player" },
-      { q: "Don’t wait. The time will never be just right.", a: "Napoleon Hill" },
-      { q: "Everything you can imagine is real.", a: "Pablo Picasso" },
-      { q: "Act as if what you do makes a difference. It does.", a: "William James" },
-    ];
+    async function loadAIQuote() {
+      const quoteEl = document.getElementById("quote");
+      const authorEl = document.getElementById("author");
+      const loadingEl = document.getElementById("loading");
 
-    // 🔥 Expand to 500+ by cloning variations
-    const baseMotivations = [
-      "Keep going. You are doing better than you think.",
-      "One step at a time still moves you forward.",
-      "Discipline beats motivation.",
-      "Consistency is everything.",
-      "Progress, not perfection.",
-      "You are stronger than your excuses.",
-      "Great things take time.",
-      "Never stop improving.",
-      "Stay focused and trust the process.",
-      "You can do this."
-    ];
+      loadingEl.innerText = "Generating AI quote...";
 
-    // build large dataset (500+ quotes total)
-    for (let i = 0; i < 50; i++) {
-      baseMotivations.forEach(text => {
-        quotes.push({ q: text, a: "Daily Motivation" });
-      });
+      try {
+        const res = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer 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"
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-mini",
+            messages: [
+              {
+                role: "user",
+                content: "Generate a short inspirational quote. Only return the quote and the author in format: QUOTE — AUTHOR. Make it unique and human-like."
+              }
+            ]
+          })
+        });
+
+        const data = await res.json();
+        const text = data.choices[0].message.content;
+
+        const parts = text.split("—");
+
+        quoteEl.innerText = parts[0]?.trim() || text;
+        authorEl.innerText = parts[1]?.trim() || "";
+
+        loadingEl.innerText = "";
+
+      } catch (err) {
+        console.error(err);
+        quoteEl.innerText = "AI failed to generate quote.";
+        authorEl.innerText = "";
+        loadingEl.innerText = "";
+      }
     }
 
-    function loadQuote() {
-      const today = new Date().toDateString();
-      const saved = localStorage.getItem("dailyQuote");
-
-      let quote;
-
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.date === today) {
-          quote = parsed;
-        }
-      }
-
-      if (!quote) {
-        const pick = quotes[Math.floor(Math.random() * quotes.length)];
-
-        quote = {
-          date: today,
-          q: pick.q,
-          a: pick.a
-        };
-
-        localStorage.setItem("dailyQuote", JSON.stringify(quote));
-      }
-
-      document.getElementById("quote").innerText = `"${quote.q}"`;
-      document.getElementById("author").innerText = `— ${quote.a}`;
-    }
-
-    loadQuote();
+    loadAIQuote();
   </script>
 
   <script src="mesh.js"></script>
