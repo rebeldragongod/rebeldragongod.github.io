@@ -101,7 +101,7 @@
 
       try {
         // Try API (3 quotes)
-        const res = await fetch("https://api.api-ninjas.com/v2/randomquotes");
+        const res = await fetch("https://api.quotable.io/quotes/random");
         const data = await res.json();
 
         if (Array.isArray(data) && data.length >= 3) {
