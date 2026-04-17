@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Request for new games or games needing fixed</title>
+    <title>Daily Quote</title>
 
-    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-NS4WN208Q8"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -19,17 +18,12 @@
         font-family: Arial, sans-serif;
         background: #1e1e1e;
         color: white;
-        height: 100vh;
       }
 
       .container {
         max-width: 720px;
         margin: auto;
         padding: 20px;
-        text-align: center;
-      }
-
-      h1 {
         text-align: center;
       }
 
@@ -41,27 +35,14 @@
         padding: 5px 8px;
         font-size: 16px;
         border-radius: 10px;
-        transition: all 0.2s ease;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         margin: 5px;
       }
 
-      .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 30px rgba(0,0,0,0.4);
-      }
-
-      .btn:active {
-        transform: translateY(0);
-      }
-
-      /* CENTER QUOTE */
       .quote-wrapper {
-        height: 60vh;
+        height: 65vh;
         display: flex;
         align-items: center;
         justify-content: center;
-        text-align: center;
       }
 
       #quote {
@@ -72,7 +53,6 @@
 
       #author {
         margin-top: 15px;
-        font-size: 18px;
         opacity: 0.7;
       }
     </style>
@@ -83,43 +63,83 @@
   <div class="container">
     <a href="index.html" class="btn">Home</a>
     <a href="page1.html" class="btn">Contact Us</a>
-
     <h1>Daily Quote</h1>
   </div>
 
-  <!-- CENTERED QUOTE -->
   <div class="quote-wrapper">
     <div>
-      <div id="quote">Loading quote...</div>
+      <div id="quote">Loading...</div>
       <div id="author"></div>
     </div>
   </div>
 
   <script>
-    async function loadQuote() {
-      const quoteEl = document.getElementById("quote");
-      const authorEl = document.getElementById("author");
+    const quotes = [
+      { q: "Be yourself; everyone else is already taken.", a: "Oscar Wilde" },
+      { q: "Do what you can, with what you have.", a: "Theodore Roosevelt" },
+      { q: "Success is not final, failure is not fatal.", a: "Winston Churchill" },
+      { q: "You miss 100% of the shots you don’t take.", a: "Wayne Gretzky" },
+      { q: "Stay hungry, stay foolish.", a: "Steve Jobs" },
+      { q: "In the middle of difficulty lies opportunity.", a: "Albert Einstein" },
+      { q: "Life is what happens when you're busy making other plans.", a: "John Lennon" },
+      { q: "The best way to predict the future is to create it.", a: "Peter Drucker" },
+      { q: "Hardships often prepare ordinary people for an extraordinary destiny.", a: "C.S. Lewis" },
+      { q: "Don’t watch the clock; do what it does. Keep going.", a: "Sam Levenson" },
+      { q: "It always seems impossible until it's done.", a: "Nelson Mandela" },
+      { q: "Everything you can imagine is real.", a: "Pablo Picasso" },
+      { q: "Act as if what you do makes a difference. It does.", a: "William James" },
+      { q: "Dream big and dare to fail.", a: "Norman Vaughan" },
+      { q: "Opportunities don't happen. You create them.", a: "Chris Grosser" },
+      { q: "The only limit is your mind.", a: "Unknown" },
+      { q: "Push yourself, because no one else is going to do it for you.", a: "Unknown" },
+      { q: "Great things never come from comfort zones.", a: "Unknown" },
+      { q: "Don’t stop when you’re tired. Stop when you’re done.", a: "Unknown" },
+      { q: "Wake up with determination. Go to bed with satisfaction.", a: "Unknown" },
+      { q: "Doubt kills more dreams than failure ever will.", a: "Suzy Kassem" },
+      { q: "Work hard in silence, let success make the noise.", a: "Frank Ocean" },
+      { q: "Stay positive, work hard, make it happen.", a: "Unknown" },
+      { q: "Small steps every day lead to big results.", a: "Unknown" },
+      { q: "Your only limit is you.", a: "Unknown" },
+      { q: "Don’t wait for opportunity. Create it.", a: "Unknown" },
+      { q: "Discipline is doing what needs to be done, even if you don’t want to.", a: "Unknown" },
+      { q: "Be stronger than your excuses.", a: "Unknown" },
+      { q: "The harder you work, the luckier you get.", a: "Gary Player" },
+      { q: "Never give up because great things take time.", a: "Unknown" }
+    ];
 
-      try {
-        // WORKING CORS-FREE API (important)
-        const res = await fetch("https://api.allorigins.win/raw?url=https://zenquotes.io/api/random");
+    function loadQuote() {
+      const today = new Date().toDateString();
+      const saved = localStorage.getItem("dailyQuote");
 
-        const data = await res.json();
+      let quote;
 
-        quoteEl.innerText = `"${data[0].q}"`;
-        authorEl.innerText = `— ${data[0].a}`;
-
-      } catch (err) {
-        quoteEl.innerText = "Quote failed to load.";
-        authorEl.innerText = "";
-        console.error(err);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.date === today) {
+          quote = parsed;
+        }
       }
+
+      if (!quote) {
+        const index = Math.floor(Math.random() * quotes.length);
+        const pick = quotes[index];
+
+        quote = {
+          date: today,
+          q: pick.q,
+          a: pick.a
+        };
+
+        localStorage.setItem("dailyQuote", JSON.stringify(quote));
+      }
+
+      document.getElementById("quote").innerText = `"${quote.q}"`;
+      document.getElementById("author").innerText = `— ${quote.a}`;
     }
 
     loadQuote();
   </script>
 
-  <!-- YOUR BACKGROUND -->
   <script src="mesh.js"></script>
 
 </body>
