@@ -75,41 +75,49 @@
   </div>
 
   <script>
-    const quotes = [
-      { q: "Be yourself; everyone else is already taken.", a: "Oscar Wilde" },
-      { q: "Do what you can, with what you have.", a: "Theodore Roosevelt" },
-      { q: "Success is not final, failure is not fatal.", a: "Winston Churchill" },
-      { q: "You miss 100% of the shots you don’t take.", a: "Wayne Gretzky" },
-      { q: "Stay hungry, stay foolish.", a: "Steve Jobs" },
-      { q: "In the middle of difficulty lies opportunity.", a: "Albert Einstein" }
-    ];
+const quotes = [
+  { q: "Be yourself; everyone else is already taken.", a: "Oscar Wilde" },
+  { q: "Do what you can, with what you have.", a: "Theodore Roosevelt" },
+  { q: "Success is not final, failure is not fatal.", a: "Winston Churchill" },
+  { q: "You miss 100% of the shots you don’t take.", a: "Wayne Gretzky" },
+  { q: "Stay hungry, stay foolish.", a: "Steve Jobs" },
+  { q: "In the middle of difficulty lies opportunity.", a: "Albert Einstein" }
+];
 
-    function loadQuote() {
-      const today = new Date().toDateString();
-      const saved = localStorage.getItem("dailyQuote");
+function loadQuote() {
+  const today = new Date().toDateString();
 
-      let quote;
+  let saved = null;
 
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.date === today) {
-          quote = parsed;
-        }
-      }
+  try {
+    saved = JSON.parse(localStorage.getItem("dailyQuote"));
+  } catch (e) {
+    saved = null;
+  }
 
-      if (!quote) {
-        const pick = quotes[Math.floor(Math.random() * quotes.length)];
-        quote = { date: today, q: pick.q, a: pick.a };
+  let quoteObj;
 
-        localStorage.setItem("dailyQuote", JSON.stringify(quote));
-      }
+  // ✅ use saved if valid AND correct format
+  if (saved && saved.date === today && saved.q && saved.a) {
+    quoteObj = saved;
+  } else {
+    const pick = quotes[Math.floor(Math.random() * quotes.length)];
 
-      document.getElementById("quote").innerText = `"${quote.q}"`;
-      document.getElementById("author").innerText = `— ${quote.a}`;
-    }
+    quoteObj = {
+      date: today,
+      q: pick.q,
+      a: pick.a
+    };
 
-    loadQuote();
-  </script>
+    localStorage.setItem("dailyQuote", JSON.stringify(quoteObj));
+  }
+
+  document.getElementById("quote").innerText = `"${quoteObj.q}"`;
+  document.getElementById("author").innerText = `— ${quoteObj.a}`;
+}
+
+loadQuote();
+</script>
 
   <script src="mesh.js"></script>
 
