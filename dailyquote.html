@@ -1,41 +1,98 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Daily Quote</title>
+    <title>Request for new games or games needing fixed</title>
 
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #1e1e1e;
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NS4WN208Q8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-NS4WN208Q8');
+    </script>
 
-    #quote {
-      font-size: 28px;
-      max-width: 700px;
-      padding: 20px;
-      line-height: 1.5;
-    }
+    <style>
+      body {
+        overflow-x: hidden;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #1e1e1e;
+        color: white;
+        height: 100vh;
+      }
 
-    .author {
-      margin-top: 15px;
-      font-size: 18px;
-      opacity: 0.7;
-    }
-  </style>
+      .container {
+        max-width: 720px;
+        margin: auto;
+        padding: 20px;
+        text-align: center;
+      }
+
+      h1 {
+        text-align: center;
+      }
+
+      .btn {
+        display: inline-block;
+        text-decoration: none;
+        background: #787878;
+        color: white;
+        padding: 5px 8px;
+        font-size: 16px;
+        border-radius: 10px;
+        transition: all 0.2s ease;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        margin: 5px;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+      }
+
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      /* CENTER QUOTE */
+      .quote-wrapper {
+        height: 60vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      #quote {
+        font-size: 28px;
+        max-width: 700px;
+        line-height: 1.5;
+      }
+
+      #author {
+        margin-top: 15px;
+        font-size: 18px;
+        opacity: 0.7;
+      }
+    </style>
 </head>
 
 <body>
 
-  <div>
-    <div id="quote">Loading quote...</div>
-    <div id="author"></div>
+  <div class="container">
+    <a href="index.html" class="btn">Home</a>
+    <a href="page1.html" class="btn">Contact Us</a>
+
+    <h1>Daily Quote</h1>
+  </div>
+
+  <!-- CENTERED QUOTE -->
+  <div class="quote-wrapper">
+    <div>
+      <div id="quote">Loading quote...</div>
+      <div id="author"></div>
+    </div>
   </div>
 
   <script>
@@ -43,30 +100,27 @@
       const quoteEl = document.getElementById("quote");
       const authorEl = document.getElementById("author");
 
-      const fallback = [
-        { q: "Be yourself; everyone else is already taken.", a: "Oscar Wilde" },
-        { q: "Do what you can, with what you have.", a: "Theodore Roosevelt" },
-        { q: "Success is not final, failure is not fatal.", a: "Winston Churchill" }
-      ];
-
       try {
-        const res = await fetch("https://api.quotable.io/random?tags=inspirational|life");
+        // WORKING CORS-FREE API (important)
+        const res = await fetch("https://api.allorigins.win/raw?url=https://zenquotes.io/api/random");
+
         const data = await res.json();
 
-        quoteEl.innerText = `"${data.content}"`;
-        authorEl.innerText = `— ${data.author}`;
+        quoteEl.innerText = `"${data[0].q}"`;
+        authorEl.innerText = `— ${data[0].a}`;
 
       } catch (err) {
-        console.log("API failed, using fallback");
-
-        const pick = fallback[Math.floor(Math.random() * fallback.length)];
-        quoteEl.innerText = `"${pick.q}"`;
-        authorEl.innerText = `— ${pick.a}`;
+        quoteEl.innerText = "Quote failed to load.";
+        authorEl.innerText = "";
+        console.error(err);
       }
     }
 
     loadQuote();
   </script>
-<script src="mesh.js"></script>
+
+  <!-- YOUR BACKGROUND -->
+  <script src="mesh.js"></script>
+
 </body>
 </html>
