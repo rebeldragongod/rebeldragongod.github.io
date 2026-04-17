@@ -33,8 +33,9 @@
       }
 
       h2 {
-        font-size: 28px;
-        margin-top: 20px;
+        font-size: 22px;
+        margin: 15px 0;
+        font-weight: normal;
       }
 
       .btn {
@@ -67,79 +68,74 @@
     <a href="index.html" class="btn">Home</a>
     <a href="page1.html" class="btn">Contact Us</a>
 
-    <h1>Daily Quote</h1>
-    <h2 id="quote">Loading quote...</h2>
+    <h1>Daily Quotes</h1>
+
+    <h2 id="quote1">Loading...</h2>
+    <h2 id="quote2">Loading...</h2>
+    <h2 id="quote3">Loading...</h2>
   </div>
 
-  <!-- Quote script -->
   <script>
-async function getDailyQuote() {
-  const el = document.getElementById("quote");
+    async function getThreeQuotes() {
+      const today = new Date().toDateString();
 
-  if (!el) {
-    console.error("Quote element not found");
-    return;
-  }
+      const fallbackQuotes = [
+        `"Be yourself; everyone else is already taken."<br>— Oscar Wilde`,
+        `"Do what you can, with what you have."<br>— Theodore Roosevelt`,
+        `"Success is not final, failure is not fatal."<br>— Winston Churchill`,
+        `"You miss 100% of the shots you don’t take."<br>— Wayne Gretzky`,
+        `"Stay hungry, stay foolish."<br>— Steve Jobs`
+      ];
 
-  const today = new Date().toDateString();
-  const saved = localStorage.getItem("dailyQuote");
+      const saved = localStorage.getItem("dailyQuotes");
 
-  // Use saved quote if it's today
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    if (parsed.date === today) {
-      el.innerHTML = parsed.quote;
-      return;
+      let quotes = null;
+
+      // Use saved quotes if same day
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.date === today) {
+          quotes = parsed.quotes;
+        }
+      }
+
+      try {
+        // Try API (3 quotes)
+        const res = await fetch("https://api.api-ninjas.com/v2/randomquotes");
+        const data = await res.json();
+
+        if (Array.isArray(data) && data.length >= 3) {
+          quotes = [
+            `"${data[0].q}"<br>— ${data[0].a}`,
+            `"${data[1].q}"<br>— ${data[1].a}`,
+            `"${data[2].q}"<br>— ${data[2].a}`
+          ];
+        }
+
+      } catch (err) {
+        console.log("API failed, using fallback...");
+      }
+
+      // If API failed or not usable → fallback
+      if (!quotes) {
+        const shuffled = [...fallbackQuotes].sort(() => 0.5 - Math.random());
+        quotes = shuffled.slice(0, 3);
+      }
+
+      // Save for the day
+      localStorage.setItem("dailyQuotes", JSON.stringify({
+        date: today,
+        quotes: quotes
+      }));
+
+      // Display
+      document.getElementById("quote1").innerHTML = quotes[0];
+      document.getElementById("quote2").innerHTML = quotes[1];
+      document.getElementById("quote3").innerHTML = quotes[2];
     }
-  }
 
-  // Backup quotes (ALWAYS works)
-  const fallbackQuotes = [
-    `"Be yourself; everyone else is already taken."<br>— Oscar Wilde`,
-    `"Do what you can, with what you have."<br>— Theodore Roosevelt`,
-    `"Success is not final, failure is not fatal."<br>— Winston Churchill`,
-    `"You miss 100% of the shots you don’t take."<br>— Wayne Gretzky`
-  ];
-
-  try {
-    console.log("Fetching quote...");
-
-    const res = await fetch("https://api.allorigins.win/raw?url=https://zenquotes.io/api/random");
-
-    if (!res.ok) throw new Error("Network response not ok");
-
-    const data = await res.json();
-
-    const quoteText = `"${data[0].q}"<br>— ${data[0].a}`;
-    el.innerHTML = quoteText;
-
-    localStorage.setItem("dailyQuote", JSON.stringify({
-      date: today,
-      quote: quoteText
-    }));
-
-    console.log("Quote loaded from API");
-
-  } catch (err) {
-    console.error("API failed:", err);
-
-    // Use fallback
-    const index = Math.floor(Date.now() / (1000 * 60 * 60 * 24)) % fallbackQuotes.length;
-    const quoteText = fallbackQuotes[index];
-
-    el.innerHTML = quoteText;
-
-    localStorage.setItem("dailyQuote", JSON.stringify({
-      date: today,
-      quote: quoteText
-    }));
-
-    console.log("Using fallback quote");
-  }
-}
-
-getDailyQuote();
-</script>
+    getThreeQuotes();
+  </script>
 
   <!-- Your background script -->
   <script src="mesh.js"></script>
