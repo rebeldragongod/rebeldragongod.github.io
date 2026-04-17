@@ -16,8 +16,8 @@ canvas.style.pointerEvents = "none";
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const DOT_COUNT = 50;
-const MAX_DIST = 100;
+const DOT_COUNT = 150;
+const MAX_DIST = 150;
 
 const DAMPING = 0.9;
 const IMPULSE_RADIUS = 50;
