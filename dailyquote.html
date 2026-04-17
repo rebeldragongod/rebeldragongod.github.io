@@ -1,67 +1,148 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-NS4WN208Q8"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-NS4WN208Q8');
-</script>
     <title>Request for new games or games needing fixed</title>
-</head>
-<body>
-  <style>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NS4WN208Q8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-NS4WN208Q8');
+    </script>
+
+    <style>
       body {
-      overflow-x: hidden;
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #1e1e1e;
-      color: white;
+        overflow-x: hidden;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #1e1e1e;
+        color: white;
       }
+
       .container {
-      max-width: 720px;
-      margin: auto;
-      padding: 20px;
+        max-width: 720px;
+        margin: auto;
+        padding: 20px;
+        text-align: center;
       }
+
       h1 {
-      text-align: center;
+        text-align: center;
       }
+
       h2 {
-      text-align: center;
-      font-size: 40px;
+        font-size: 28px;
+        margin-top: 20px;
       }
+
       .btn {
-      display: inline-block;
-      text-decoration: none;
-      background: #787878;
-      color: white;
-      padding: 5px 8px;
-      font-size: 16px;
-      border-radius: 10px;
-      transition: all 0.2s ease;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        display: inline-block;
+        text-decoration: none;
+        background: #787878;
+        color: white;
+        padding: 5px 8px;
+        font-size: 16px;
+        border-radius: 10px;
+        transition: all 0.2s ease;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        margin: 5px;
       }
 
       .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.4);
       }
 
       .btn:active {
-      transform: translateY(0);
+        transform: translateY(0);
       }
-      
+    </style>
+</head>
 
-  </style>
+<body>
+
   <div class="container">
     <a href="index.html" class="btn">Home</a>
     <a href="page1.html" class="btn">Contact Us</a>
+
     <h1>Daily Quote</h1>
-    <h2>An Apple a Day Will Keep Anyone Away<br> If you Throw It Hard Enough</h2>
+    <h2 id="quote">Loading quote...</h2>
   </div>
-    <script src="mesh.js"></script>
+
+  <!-- Quote script -->
+  <script>
+async function getDailyQuote() {
+  const el = document.getElementById("quote");
+
+  if (!el) {
+    console.error("Quote element not found");
+    return;
+  }
+
+  const today = new Date().toDateString();
+  const saved = localStorage.getItem("dailyQuote");
+
+  // Use saved quote if it's today
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    if (parsed.date === today) {
+      el.innerHTML = parsed.quote;
+      return;
+    }
+  }
+
+  // Backup quotes (ALWAYS works)
+  const fallbackQuotes = [
+    `"Be yourself; everyone else is already taken."<br>— Oscar Wilde`,
+    `"Do what you can, with what you have."<br>— Theodore Roosevelt`,
+    `"Success is not final, failure is not fatal."<br>— Winston Churchill`,
+    `"You miss 100% of the shots you don’t take."<br>— Wayne Gretzky`
+  ];
+
+  try {
+    console.log("Fetching quote...");
+
+    const res = await fetch("https://api.allorigins.win/raw?url=https://zenquotes.io/api/random");
+
+    if (!res.ok) throw new Error("Network response not ok");
+
+    const data = await res.json();
+
+    const quoteText = `"${data[0].q}"<br>— ${data[0].a}`;
+    el.innerHTML = quoteText;
+
+    localStorage.setItem("dailyQuote", JSON.stringify({
+      date: today,
+      quote: quoteText
+    }));
+
+    console.log("Quote loaded from API");
+
+  } catch (err) {
+    console.error("API failed:", err);
+
+    // Use fallback
+    const index = Math.floor(Date.now() / (1000 * 60 * 60 * 24)) % fallbackQuotes.length;
+    const quoteText = fallbackQuotes[index];
+
+    el.innerHTML = quoteText;
+
+    localStorage.setItem("dailyQuote", JSON.stringify({
+      date: today,
+      quote: quoteText
+    }));
+
+    console.log("Using fallback quote");
+  }
+}
+
+getDailyQuote();
+</script>
+
+  <!-- Your background script -->
+  <script src="mesh.js"></script>
+
 </body>
 </html>
