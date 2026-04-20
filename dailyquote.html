@@ -1,62 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Daily Quote</title>
+  <title>Daily Quote</title>
 
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NS4WN208Q8"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-NS4WN208Q8');
-    </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NS4WN208Q8"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-NS4WN208Q8');
+  </script>
 
-    <style>
-      body {
-        overflow-x: hidden;
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #1e1e1e;
-        color: white;
-      }
+  <style>
+    body {
+      overflow-x: hidden;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #1e1e1e;
+      color: white;
+    }
 
-      .container {
-        max-width: 720px;
-        margin: auto;
-        padding: 20px;
-        text-align: center;
-      }
+    .container {
+      max-width: 720px;
+      margin: auto;
+      padding: 20px;
+      text-align: center;
+    }
 
-      .btn {
-        display: inline-block;
-        text-decoration: none;
-        background: #787878;
-        color: white;
-        padding: 5px 8px;
-        font-size: 16px;
-        border-radius: 10px;
-        margin: 5px;
-      }
+    .btn {
+      display: inline-block;
+      text-decoration: none;
+      background: #787878;
+      color: white;
+      padding: 5px 8px;
+      font-size: 16px;
+      border-radius: 10px;
+      margin: 5px;
+    }
 
-      .quote-wrapper {
-        height: 60vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
+    .quote-wrapper {
+      height: 60vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
 
-      #quote {
-        font-size: 28px;
-        max-width: 700px;
-        line-height: 1.5;
-        text-align: center;
-      }
+    #quote {
+      font-size: 28px;
+      max-width: 700px;
+      line-height: 1.5;
+      text-align: center;
+    }
 
-      #author {
-        margin-top: 15px;
-        opacity: 0.7;
-      }
-    </style>
+    #author {
+      margin-top: 15px;
+      opacity: 0.7;
+    }
+
+    #authorImg {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin-top: 20px;
+      object-fit: cover;
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
@@ -71,15 +81,17 @@
     <div>
       <div id="quote">Loading...</div>
       <div id="author"></div>
+      <img id="authorImg">
     </div>
   </div>
 
- <script>
+<script>
 const quoteEl = document.getElementById("quote");
 const authorEl = document.getElementById("author");
+const imgEl = document.getElementById("authorImg");
 
 function getToday() {
-  return new Date().toISOString().split("T")[0]; // better than toDateString()
+  return new Date().toISOString().split("T")[0];
 }
 
 async function loadQuote() {
@@ -93,18 +105,15 @@ async function loadQuote() {
     saved = null;
   }
 
-  // ✅ Use cached quote if it's from today
   if (saved && saved.date === today && saved.quote) {
-    displayQuote(saved.quote);
+    await displayQuote(saved.quote);
     return;
   }
 
   try {
-    // 🔗 CALL YOUR CLOUDLFARE WORKER HERE
     const res = await fetch("https://aistuff.rebe1dragon1000.workers.dev/");
     const data = await res.json();
 
-    // Save it
     const quoteObj = {
       date: today,
       quote: data.quote
@@ -112,7 +121,7 @@ async function loadQuote() {
 
     localStorage.setItem("dailyQuote", JSON.stringify(quoteObj));
 
-    displayQuote(data.quote);
+    await displayQuote(data.quote);
 
   } catch (err) {
     console.error("Error fetching quote:", err);
@@ -120,24 +129,51 @@ async function loadQuote() {
   }
 }
 
-// 💡 Splits quote + author if possible
-function displayQuote(text) {
-  // Try to split "Quote — Author"
+// 🧠 Wikipedia image fetch
+async function getWikiImage(author) {
+  try {
+    const url = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages&piprop=thumbnail&pithumbsize=300&titles=${encodeURIComponent(author)}&origin=*`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const pages = data.query.pages;
+    const page = Object.values(pages)[0];
+
+    return page?.thumbnail?.source || null;
+
+  } catch (err) {
+    console.error("Wiki error:", err);
+    return null;
+  }
+}
+
+// 💡 Display quote + image
+async function displayQuote(text) {
   const parts = text.split("—");
 
-  if (parts.length > 1) {
-    quoteEl.innerText = `"${parts[0].trim()}"`;
-    authorEl.innerText = `— ${parts[1].trim()}`;
-  } else {
-    quoteEl.innerText = `"${text}"`;
-    authorEl.innerText = "";
+  const quote = parts[0].trim();
+  const author = parts[1]?.trim() || "Unknown";
+
+  quoteEl.innerText = `"${quote}"`;
+  authorEl.innerText = `— ${author}`;
+
+  // reset image
+  imgEl.style.display = "none";
+  imgEl.src = "";
+
+  const img = await getWikiImage(author);
+
+  if (img) {
+    imgEl.src = img;
+    imgEl.style.display = "block";
   }
 }
 
 loadQuote();
 </script>
 
-  <script src="mesh.js"></script>
+<script src="mesh.js"></script>
 
 </body>
 </html>
