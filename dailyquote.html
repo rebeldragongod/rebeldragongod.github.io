@@ -74,18 +74,16 @@
     </div>
   </div>
 
-  <script>
-const quotes = [
-  { q: "Be yourself; everyone else is already taken.", a: "Oscar Wilde" },
-  { q: "Do what you can, with what you have.", a: "Theodore Roosevelt" },
-  { q: "Success is not final, failure is not fatal.", a: "Winston Churchill" },
-  { q: "You miss 100% of the shots you don’t take.", a: "Wayne Gretzky" },
-  { q: "Stay hungry, stay foolish.", a: "Steve Jobs" },
-  { q: "In the middle of difficulty lies opportunity.", a: "Albert Einstein" }
-];
+ <script>
+const quoteEl = document.getElementById("quote");
+const authorEl = document.getElementById("author");
 
-function loadQuote() {
-  const today = new Date().toDateString();
+function getToday() {
+  return new Date().toISOString().split("T")[0]; // better than toDateString()
+}
+
+async function loadQuote() {
+  const today = getToday();
 
   let saved = null;
 
@@ -95,25 +93,45 @@ function loadQuote() {
     saved = null;
   }
 
-  let quoteObj;
+  // ✅ Use cached quote if it's from today
+  if (saved && saved.date === today && saved.quote) {
+    displayQuote(saved.quote);
+    return;
+  }
 
-  // ✅ use saved if valid AND correct format
-  if (saved && saved.date === today && saved.q && saved.a) {
-    quoteObj = saved;
-  } else {
-    const pick = quotes[Math.floor(Math.random() * quotes.length)];
+  try {
+    // 🔗 CALL YOUR CLOUDLFARE WORKER HERE
+    const res = await fetch("https://aistuff.rebe1dragon1000.workers.dev/");
+    const data = await res.json();
 
-    quoteObj = {
+    // Save it
+    const quoteObj = {
       date: today,
-      q: pick.q,
-      a: pick.a
+      quote: data.quote
     };
 
     localStorage.setItem("dailyQuote", JSON.stringify(quoteObj));
-  }
 
-  document.getElementById("quote").innerText = `"${quoteObj.q}"`;
-  document.getElementById("author").innerText = `— ${quoteObj.a}`;
+    displayQuote(data.quote);
+
+  } catch (err) {
+    console.error("Error fetching quote:", err);
+    quoteEl.innerText = "Failed to load quote.";
+  }
+}
+
+// 💡 Splits quote + author if possible
+function displayQuote(text) {
+  // Try to split "Quote — Author"
+  const parts = text.split("—");
+
+  if (parts.length > 1) {
+    quoteEl.innerText = `"${parts[0].trim()}"`;
+    authorEl.innerText = `— ${parts[1].trim()}`;
+  } else {
+    quoteEl.innerText = `"${text}"`;
+    authorEl.innerText = "";
+  }
 }
 
 loadQuote();
